@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -33,6 +33,8 @@ namespace try3
             //Debug.Log(string.Join(",", formalizatedMaze_Inside_WallSchematic(20, 20)));
             //Centers.instance.Print3D_Array<bool>(formalizatedMaze_Inside_WallSchematic(40, 40));
             //Debug.Log(debuggingDoubleWallDataMaze(formalizatedMaze_Inside_WallSchematic(30, 30)));
+
+            Debug.Log("t");
             Debug.Log(debuggingDoubleWallDataMaze(typecast_Blocklization(formalizatedMaze_Inside_WallSchematic(30, 20))));
         }
 
@@ -124,13 +126,13 @@ namespace try3
 
             List<HashSet<int>> setManager = new List<HashSet<int>>();
 
-            byte[,] blocks = new byte[size_X, size_Y];
+            byte[,] blocks = new byte[size_Y, size_X];
 
             for (int i = 0; i < size_X; i++)
             {
                 for (int j = 0; j < size_Y; j++)
                 {
-                    blocks[i, j] = byte.MaxValue; //value of 255 means null
+                    blocks[j, i] = byte.MaxValue; //value of 255 means null
                 }
             }
 
@@ -186,7 +188,11 @@ namespace try3
                     if (UnityEngine.Random.value < sideWallEilminationRate)
                     {
                         blocks[column, i] -= 2;
+                        Debug.Log($"{column}: {FindHashSetIndexWithArrayNumber(setManager, c.coord(column, i))} | {FindHashSetIndexWithArrayNumber(setManager, c.coord(column, i-1))}");
                         UnionElementSet(ref setManager, FindHashSetIndexWithArrayNumber(setManager, c.coord(column, i)), FindHashSetIndexWithArrayNumber(setManager, c.coord(column, i-1)));
+                    }
+                    else{
+                        Debug.Log("P");
                     }
 
                 }
@@ -399,14 +405,15 @@ namespace try3
 
             int FindHashSetIndexWithArrayNumber(List<HashSet<int>> asortmentOfSet, int num)
             {
-                for (int i = asortmentOfSet.Count - 1; i >= 0; i--)
+                for (int i = 0; i < asortmentOfSet.Count; i++)
                 {
                     if (asortmentOfSet[i].Contains(num))
                     {
                         return i;
                     }
                 }
-
+                
+                Debug.LogWarning("-1 output");
                 return -1;
 
             }
