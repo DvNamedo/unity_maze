@@ -33,7 +33,7 @@ namespace try3
             //Debug.Log(string.Join(",", formalizatedMaze_Inside_WallSchematic(20, 20)));
             //Centers.instance.Print3D_Array<bool>(formalizatedMaze_Inside_WallSchematic(40, 40));
             //Debug.Log(debuggingDoubleWallDataMaze(formalizatedMaze_Inside_WallSchematic(30, 30)));
-            Debug.Log(debuggingDoubleWallDataMaze(typecast_Blocklization(formalizatedMaze_Inside_WallSchematic(30, 30))));
+            Debug.Log(debuggingDoubleWallDataMaze(typecast_Blocklization(formalizatedMaze_Inside_WallSchematic(30, 20))));
         }
 
         void setSchementics()
@@ -109,8 +109,6 @@ namespace try3
         }
 
 
-        private delegate int Coord(int i, int j);
-
         /// <summary>
         /// it return Normal maze Array that each dimension is x coordination, y coordination and wall direction
         /// </summary>
@@ -121,6 +119,8 @@ namespace try3
         {
             size_X = Mathf.Abs(size_X);
             size_Y = Mathf.Abs(size_Y);
+
+            Coord c = new Coord(size_X);
 
             List<HashSet<int>> setManager = new List<HashSet<int>>();
 
@@ -147,7 +147,7 @@ namespace try3
                     if (blocks[column, row] == byte.MaxValue)
                     {
                         blocks[column, row] = 2 + 1;
-                        setManager.Add(new HashSet<int> { row + column * size_X });
+                        setManager.Add(new HashSet<int> { c.coord(column,row) });
                     }
                 }
 
@@ -164,11 +164,7 @@ namespace try3
                 //wall eliminating
 
                 //뭔가 있는듯
-                for (int row = 1; row < size_X;i++)
-                {
-                    if(UnityEngine.Random.value < )
-                }
-
+                
                 /*
                 for (int i = 0; i < size_X - 1; i++)
                 {
@@ -185,8 +181,54 @@ namespace try3
                 }
                 */
 
-                    // upon wall Eliminating ================================================================================================
-                    HashSet<uint> droughtyList = new HashSet<uint>();
+                for (int i = 1; i < size_X; i++)
+                {
+                    if (UnityEngine.Random.value < sideWallEilminationRate)
+                    {
+                        blocks[column, i] -= 2;
+                        UnionElementSet(ref setManager, FindHashSetIndexWithArrayNumber(setManager, c.coord(column, i)), FindHashSetIndexWithArrayNumber(setManager, c.coord(column, i-1)));
+                    }
+
+                }
+
+
+
+                // upon wall Eliminating ================================================================================================
+
+                HashSet<int> hsIdx = new HashSet<int>(); // hash set about participanting hash set index number 
+                bool isModified = false;
+                int counting = 0;
+
+                for(int row = 0; row < size_X; row++)
+                {
+                    hsIdx.Add(FindHashSetIndexWithArrayNumber(setManager, c.coord(column, row)));
+                }
+
+                foreach (int idx in hsIdx){
+
+                    foreach(int crd in setManager[idx])
+                    {
+                        counting++;
+                        if (UnityEngine.Random.value <= downWallEilminationRate / Mathf.Clamp(setManager[idx].Count, 1, 8))
+                        {
+                            Debug.Log("randomModified");
+                            isModified = true;
+                            blocks[crd / size_X + 1, crd % size_X] -= 1;
+                            setManager[idx].Add(c.coord(crd / size_X + 1, crd % size_X));
+                        }
+                        else if(counting == setManager[idx].Count && !isModified)
+                        {
+                            Debug.Log("non-randomModified");
+                            blocks[crd / size_X + 1, crd % size_X] -= 1;
+                            setManager[idx].Add(c.coord(crd / size_X + 1, crd % size_X));
+                        }
+                    }
+                    counting = 0;
+                    isModified = false;
+                }
+
+                /*
+                HashSet<uint> droughtyList = new HashSet<uint>();
 
                 bool isModified = false;
 
@@ -293,10 +335,24 @@ namespace try3
 
                 //    //=======================================================================================================================================
 
-                //}
+                //} 
+                */
             }
 
+            for(int row = 0; row < size_X; row++)
+            {
+                if(blocks[size_Y - 1, row] == byte.MaxValue)
+                {
+                    blocks[size_Y -1 , row] = 2 + 1;
+                }
+            }
 
+            for(int i = 1; i < size_X; i++)
+            {
+                blocks[size_Y - 1, i] -= 2;
+            }
+
+                /*
             //end process
             for (int row = 0; row < size_X; row++)
             {
@@ -310,7 +366,8 @@ namespace try3
             {
                 blocks[coord(i + 1, size_Y - 1)].mWallData.sideWall = false;
             }
-
+            
+            */
             // type Casting
 
             bool[,,] typeCastedArray = new bool[size_X, size_Y, 2]; // [0]:width [1]: height
@@ -321,47 +378,68 @@ namespace try3
                 {
                     if (j != 0)
                     {
-                        typeCastedArray[i, j - 1, 0] = blocks[coord(i, j)].mWallData.topWall; // n * m-1
+                        typeCastedArray[i, j - 1, 0] = blocks[i, j]%2 == 1; // n * m-1
                     }
 
                     if (i != 0)
                     {
-                        typeCastedArray[i - 1, j, 1] = blocks[coord(i, j)].mWallData.sideWall; // m-1 * n
+                        typeCastedArray[i - 1, j, 1] = blocks[i, j]/2 == 1; // m-1 * n
                     }
                 }
             }
+            
 
-            return typeCastedArray;
+                return typeCastedArray;
 
 
 
+            
         }
 
 
-        int FindHashSetWithArrayNumber(List<HashSet<int>> asortmentOfSet, int num)
-        {
-            for (int i = asortmentOfSet.Count - 1; i >= 0 ; i--)
+            int FindHashSetIndexWithArrayNumber(List<HashSet<int>> asortmentOfSet, int num)
             {
-                if (asortmentOfSet[i].Contains(num))
+                for (int i = asortmentOfSet.Count - 1; i >= 0; i--)
                 {
-                    return i;
+                    if (asortmentOfSet[i].Contains(num))
+                    {
+                        return i;
+                    }
+                }
+
+                return -1;
+
+            }
+
+            void UnionElementSet(ref List<HashSet<int>> asortmentOfSet, int ele1, int ele2)
+            {
+                HashSet<int> merge = new HashSet<int>();
+                merge.UnionWith(asortmentOfSet[ele1]);
+                merge.UnionWith(asortmentOfSet[ele2]);
+
+                asortmentOfSet.RemoveAt(ele1);
+                asortmentOfSet.RemoveAt(ele2);
+
+                asortmentOfSet.Add(merge);
+            }
+
+        class Coord
+        {
+            int max = 1;
+
+            public Coord(int maxRow)
+            {
+                if (maxRow > 0)
+                {
+                    max = maxRow;
                 }
             }
 
-            return -1;
+            public int coord(int col, int row)
+            {
+                return col * max + row;
+            }
 
         }
-
-        void UnionElementSet(ref List<List<int>> asortmentOfSet, int ele1, int ele2)
-        {
-            List<int> merge = new List<int>();
-            merge.AddRange(asortmentOfSet[ele1]);
-            merge.AddRange(asortmentOfSet[ele2]);
-
-            asortmentOfSet.RemoveAt(ele1);
-            asortmentOfSet.RemoveAt(ele2);
-
-            asortmentOfSet.Add(merge);
-        }
-
+    }
 }
