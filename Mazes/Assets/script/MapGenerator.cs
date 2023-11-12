@@ -1,9 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
-
-
+using Random = UnityEngine.Random;
+using System.Linq;
 
 namespace try2
 {
@@ -24,7 +25,7 @@ namespace try2
         [SerializeField]
         float downWallEilminationRate = 0.25f;
 
-        private byte?[,] mapSchematicArray;
+        private bool[,,] mapSchematicArray;
         int sizeofX;
 
         //formalizatedMaze_Inside_WallSchematic(int,int) 에서 미로를 생성하기 위해 미로 구역을 벽에 따라 나눈 블록의 실체를 저장하는 리스트
@@ -86,23 +87,198 @@ namespace try2
         {
 
             //싱글톤에서 미로 크기 값을 받아오는 부분, 현재는 사실상 안쓰임
-            mapSchematicArray = new byte?[Centers.instance.mazeSize, Centers.instance.mazeSize];
+            int Xsize = (int)Centers.instance.mazeSizeX;
+            int Ysize = (int)Centers.instance.mazeSizeY;
+            mapSchematicArray = new bool[Xsize, Ysize,2];
+            getSchementics(ref mapSchematicArray, Xsize, Ysize);
+
             //Debug.Log(string.Join(",", formalizatedMaze_Inside_WallSchematic(20, 20)));
             //Centers.instance.Print3D_Array<bool>(formalizatedMaze_Inside_WallSchematic(40, 40));
             //Debug.Log(debuggingDoubleWallDataMaze(formalizatedMaze_Inside_WallSchematic(30, 30)));
-            
+
             // bool?[,,] 형태의 미로를 시각화시키는 함수를 로그창에 띄우는 부분
-            Debug.Log(debuggingDoubleWallDataMaze(typecast_Blocklization(formalizatedMaze_Inside_WallSchematic(30, 30))));
-            // [[],[],[]
+            //bool?[,] map = typecast_Blocklization(formalizatedMaze_Inside_WallSchematic(30, 20));
+            //bool?[,] map2 = map;
+            //bool?[,] map3 = map;
+
+
+
+            //Debug.Log("general:\n" + debuggingDoubleWallDataMaze(map));
+
+            //Centers.instance.Array2D_y_SymmetricTranspositon<bool?>(ref map);
+            //mazeCleanup(ref map);
+            //Debug.Log("y-axis:\n" + debuggingDoubleWallDataMaze(map));
+
+            //Centers.instance.Array2D_clockwise_90_rotationalTransposition<bool?>(ref map2);
+            //mazeCleanup(ref map);
+            //Debug.Log("90 angle:\n" + debuggingDoubleWallDataMaze(map2));
+
+            //Centers.instance.Array2D_y_SymmetricTranspositon<bool?>(ref map3);
+            //Centers.instance.Array2D_clockwise_90_rotationalTransposition<bool?>(ref map3);
+            //mazeCleanup(ref map3);
+            //Debug.Log("y-axis and 90 angle:\n" + debuggingDoubleWallDataMaze(map3));
+
+
+            Debug.Log(typecast_Blocklization(mapSchematicArray));
 
             //Debug.Log(debuggingDoubleWallDataMaze(typecast_Blocklization(mazeTypecast(blocks, size_X, size_Y))); the source to use debuging map 
 
         }
 
-        void setSchementics()
+        void getSchementics(ref bool[,,] maze, int X_length, int Y_length)
         {
+            X_length += 2; // 결합 시 손실을 고려함 I consider the Loss when merging indexes
+
+            int connectionPartColumnLength = Random.Range(3, 6);
+            int rightPartColumnLength = Random.Range(5, X_length - connectionPartColumnLength - 5);
+            int leftPartColumnLength = X_length - (rightPartColumnLength + connectionPartColumnLength);
+
+            int upPartRowLength = Random.Range(3, Y_length - 3);
+            int downPartRowLength = Y_length - upPartRowLength + 1; //I consider the Loss when merging indexes
+
+            bool?[,] originalMaze = typecast_Blocklization(formalizatedMaze_Inside_WallSchematic(Y_length,leftPartColumnLength));
+            bool?[,] yAxisSymMaze = typecast_Blocklization(formalizatedMaze_Inside_WallSchematic(Y_length, rightPartColumnLength));
+            bool?[,] angle90rotateMaze = typecast_Blocklization(formalizatedMaze_Inside_WallSchematic(upPartRowLength, connectionPartColumnLength));
+            bool?[,] yAxisSymPlusAngle90rotateMaze = typecast_Blocklization(formalizatedMaze_Inside_WallSchematic(downPartRowLength, connectionPartColumnLength));
+            
+            bool[,] ConnectionPart;
+            bool[,] mergedPart_1;
+            bool[,] blocklizatedMaze;
+
+            Centers.instance.Array2D_y_SymmetricTranspositon<bool?>(ref yAxisSymMaze);
+
+            Centers.instance.Array2D_clockwise_90_rotationalTransposition<bool?>(ref angle90rotateMaze);
+
+            Centers.instance.Array2D_y_SymmetricTranspositon<bool?>(ref yAxisSymPlusAngle90rotateMaze);
+            Centers.instance.Array2D_clockwise_90_rotationalTransposition<bool?>(ref yAxisSymPlusAngle90rotateMaze);
+
+            mazeCleanup(ref yAxisSymMaze);
+            mazeCleanup(ref angle90rotateMaze);
+            mazeCleanup(ref yAxisSymPlusAngle90rotateMaze);
+
+
+            bool[,] originalMazeNotNull = Enumerable.Range(0, originalMaze.GetLength(0)).Select(row => Enumerable.Range(0, originalMaze.GetLength(1)).Select(col => originalMaze[row, col] ?? false).ToArray()).ToArray().ToTwoDimensionalArray();
+            bool[,] yAxisSymMazeNotNull = Enumerable.Range(0, yAxisSymMaze.GetLength(0)).Select(row => Enumerable.Range(0, yAxisSymMaze.GetLength(1)).Select(col => yAxisSymMaze[row, col] ?? false).ToArray()).ToArray().ToTwoDimensionalArray();
+            bool[,] angle90rotateMazeNotNull = Enumerable.Range(0, angle90rotateMaze.GetLength(0)).Select(row => Enumerable.Range(0, angle90rotateMaze.GetLength(1)).Select(col => angle90rotateMaze[row, col] ?? false).ToArray()).ToArray().ToTwoDimensionalArray();
+            bool[,] yAxisSymPlusAngle90rotateMazeNotNull = Enumerable.Range(0, yAxisSymPlusAngle90rotateMaze.GetLength(0)).Select(row => Enumerable.Range(0, yAxisSymPlusAngle90rotateMaze.GetLength(1)).Select(col => yAxisSymPlusAngle90rotateMaze[row, col] ?? false).ToArray()).ToArray().ToTwoDimensionalArray();
+            // feat. Chat GPT
+
+            ConnectionPart = Centers.instance.booleanArray2D_merge(angle90rotateMazeNotNull, yAxisSymPlusAngle90rotateMazeNotNull, Centers.direction.Upward, 2);
+            mergedPart_1 = Centers.instance.booleanArray2D_merge(ConnectionPart, originalMazeNotNull, Centers.direction.rightward, 2);
+            blocklizatedMaze = Centers.instance.booleanArray2D_merge(mergedPart_1, yAxisSymMazeNotNull, Centers.direction.leftward, 2);
+
+            maze = typecast_Wallization(blocklizatedMaze);
 
         }
+
+        void mazeCleanup(ref bool?[,] _data)
+        {
+            bool[,] processingCleanedupData = new bool[_data.GetLength(0) + 2, _data.GetLength(1) + 2];
+            // 1: up-left , 2: up-right , 3: down-left, 4: down-right
+
+            bool[,] data = new bool[_data.GetLength(0), _data.GetLength(1)];
+
+            bool?[,] cleanedupData = new bool?[_data.GetLength(0), _data.GetLength(1)];
+
+            for (int i = 0; i < data.GetLength(0); i++)
+            {
+                for (int j = 0; j < data.GetLength(1); j++)
+                {
+                    data[i, j] = _data[i, j] ?? false;
+                }
+            }
+
+            for (int i = 0; i < data.GetLength(0) + 2; i++)
+            {
+                for (int j = 0; j < data.GetLength(1) + 2; j++)
+                {
+                    processingCleanedupData[i, j] = false;
+                }
+            }
+
+            //clean up
+            for (int i = 0; i < data.GetLength(0) / 2; i++)
+            {
+                for (int j = 0; j < data.GetLength(1) / 2; j++)
+                {
+                    
+                    // 1-3
+                    if(/*1*/data[2*i,2*j] && /*2*/!data[2*i,2*j + 1] && /*3*/data[2 * i + 1, 2 * j] && /*4*/!data[2 * i + 1, 2 * j + 1])
+                    {
+                        processingCleanedupData[2 * i, 2 * j] = true;
+                        processingCleanedupData[2 * i + 1, 2 * j] = true;
+                    }
+
+                    // 1-2
+                    if (/*1*/data[2 * i, 2 * j] && /*2*/data[2 * i, 2 * j + 1] && /*3*/!data[2 * i + 1, 2 * j] && /*4*/!data[2 * i + 1, 2 * j + 1])
+                    {
+                        processingCleanedupData[2 * i, 2 * j] = true;
+                        processingCleanedupData[2 * i, 2 * j + 1] = true;
+                    }
+                    // 2-4
+                    if(/*1*/!data[2*i,2*j] && /*2*/data[2*i,2*j + 1] && /*3*/!data[2 * i + 1, 2 * j] && /*4*/data[2 * i + 1, 2 * j + 1])
+                    {
+                        processingCleanedupData[2 * i, 2 * j + 2] = true;
+                        processingCleanedupData[2 * i + 1, 2 * j + 2] = true;
+                    }
+                    // 3-4
+                    if(/*1*/!data[2*i,2*j] && /*2*/!data[2*i,2*j + 1] && /*3*/data[2 * i + 1, 2 * j] && /*4*/data[2 * i + 1, 2 * j + 1])
+                    {
+                        processingCleanedupData[2 * i + 2, 2 * j] = true;
+                        processingCleanedupData[2 * i + 2, 2 * j + 1] = true;
+                    }
+
+                    // 1-2-3
+                    if(/*1*/data[2*i,2*j] && /*2*/data[2*i,2*j + 1] && /*3*/data[2 * i + 1, 2 * j] && /*4*/!data[2 * i + 1, 2 * j + 1])
+                    {
+                        processingCleanedupData[2 * i, 2 * j] = true;
+                        processingCleanedupData[2 * i + 1, 2 * j] = true;
+                        processingCleanedupData[2 * i, 2 * j + 1] = true;
+                    }
+
+                    // 1-2-4
+                    if(/*1*/data[2*i,2*j] && /*2*/data[2*i,2*j + 1] && /*3*/!data[2 * i + 1, 2 * j] && /*4*/data[2 * i + 1, 2 * j + 1])
+                    {
+                        processingCleanedupData[2 * i, 2 * j] = true;
+                        processingCleanedupData[2 * i, 2 * j + 1] = true;
+                        processingCleanedupData[2 * i, 2 * j + 2] = true;
+                        processingCleanedupData[2 * i + 1, 2 * j + 2] = true;
+                    }
+
+                    // 2-3-4
+                    if(/*1*/!data[2*i,2*j] && /*2*/data[2*i,2*j + 1] && /*3*/data[2 * i + 1, 2 * j] && /*4*/data[2 * i + 1, 2 * j + 1])
+                    {
+                        processingCleanedupData[2 * i, 2 * j + 2] = true;
+                        processingCleanedupData[2 * i + 1, 2 * j + 2] = true;
+                        processingCleanedupData[2 * i + 2, 2 * j] = true;
+                        processingCleanedupData[2 * i + 2, 2 * j + 1] = true;
+                    }
+
+                    // 1-3-4
+                    if(/*1*/data[2*i,2*j] && /*2*/!data[2*i,2*j + 1] && /*3*/data[2 * i + 1, 2 * j] && /*4*/data[2 * i + 1, 2 * j + 1])
+                    {
+                        processingCleanedupData[2 * i, 2 * j] = true;
+                        processingCleanedupData[2 * i + 1, 2 * j] = true;
+                        processingCleanedupData[2 * i + 2, 2 * j] = true;
+                        processingCleanedupData[2 * i + 2, 2 * j + 1] = true;
+
+                    }
+
+                }
+            }
+
+            for (int i = 0; i < data.GetLength(0); i++)
+            {
+                for (int j = 0; j < data.GetLength(1); j++)
+                {
+                    cleanedupData[i, j] = processingCleanedupData[i, j];
+                }
+            }
+
+            _data =  cleanedupData;
+        }
+
+
 
         // 미로 시각화 함수
         string debuggingDoubleWallDataMaze(bool?[,] maze)
@@ -127,6 +303,25 @@ namespace try2
 
             return output;
         }
+        string debuggingDoubleWallDataMaze(bool[,] maze)
+        {
+            string output = "";
+
+            for (int i = 0; i < maze.GetLength(0); i++)
+            {
+                for (int j = 0; j < maze.GetLength(1); j++)
+                {
+                    output += (bool)maze[i, j] ? "⬜" : "🟦";
+                }
+
+                output += "\n";
+
+            }
+
+
+
+            return output;
+        }
 
         // [x,y,2] 형태의 벽을 위주로 저장하는 배열을 [2*x,2*y] 형태의 통로 또한 명시적으로 표현해주는 배열로 바꾸는 함수
         bool?[,] typecast_Blocklization(bool?[,,] data) // [x,y,2] -> [x,y] on the other words, two walls in each blocks become individual nine blocks
@@ -135,7 +330,7 @@ namespace try2
             int dataXsize = data.GetLength(0);
             int dataYsize = data.GetLength(1);
 
-            bool?[,] output = new bool?[2 * dataXsize + 1, 2 * dataYsize + 1];
+            bool?[,] output = new bool?[2 * dataXsize, 2 * dataYsize];
 
             for (int i = 0; i < dataXsize; i++)
             {
@@ -170,11 +365,40 @@ namespace try2
 
         }
 
+        bool[,] typecast_Blocklization(bool[,,] data) // [x,y,2] -> [x,y] on the other words, two walls in each blocks become individual nine blocks
+        {
+            // 배열 크기 감지
+            int dataXsize = data.GetLength(0);
+            int dataYsize = data.GetLength(1);
+
+            bool[,] output = new bool[2 * dataXsize, 2 * dataYsize];
+
+            for (int i = 0; i < dataXsize; i++)
+            {
+                for (int j = 0; j < dataYsize; j++)
+                {
+
+                    //output[2*i + 1, 2*j + 1] is middle(parent) block (5 rightward and downward blocks overlaped other middle block's children) hint: reversed x to y
+                        output[2 * i, 2 * j] = data[i, j, 0] || data[i, j, 1];
+
+                        output[2 * i + 1, 2 * j] = data[i, j, 0];
+
+                        output[2 * i, 2 * j + 1] = data[i, j, 1];
+
+                        output[2 * i + 1, 2 * j + 1] = false;
+
+                }
+            }
+
+            return output;
+
+        }
+
         //안 씀
         bool[,,] typecast_Wallization(bool[,] data) // [x,y] -> [x,y,2] on the other words, nine blocks near by become one block that has two walls 
         {
-            int dataXsize = (data.GetLength(0) - 1) / 2;
-            int dataYsize = (data.GetLength(1) - 1) / 2;
+            int dataXsize = data.GetLength(0) / 2;
+            int dataYsize = data.GetLength(1) / 2;
 
             bool[,,] output = new bool[dataXsize, dataYsize, 2];
 
@@ -217,7 +441,7 @@ namespace try2
             }
 
             // 중간 디버깅
-            Debug.Log(debuggingDoubleWallDataMaze(typecast_Blocklization(mazeTypecast(blocks, size_X, size_Y))));
+            //Debug.Log(debuggingDoubleWallDataMaze(typecast_Blocklization(mazeTypecast(blocks, size_X, size_Y))));
             
             // Create new blocks where none exist
             // After randomly removing the wall, the family value of all blocks that have the family value of the block to be integrated into the previous block is changed to the family value of the previous block.
@@ -233,7 +457,7 @@ namespace try2
 
                 }
 
-                Debug.Log(debuggingDoubleWallDataMaze(typecast_Blocklization(mazeTypecast(blocks, size_X, size_Y))));
+                //Debug.Log(debuggingDoubleWallDataMaze(typecast_Blocklization(mazeTypecast(blocks, size_X, size_Y))));
 
                 //horizontal wall eliminating
 
@@ -254,7 +478,7 @@ namespace try2
                     }
                 }
 
-                Debug.Log(debuggingDoubleWallDataMaze(typecast_Blocklization(mazeTypecast(blocks, size_X, size_Y))));
+                //Debug.Log(debuggingDoubleWallDataMaze(typecast_Blocklization(mazeTypecast(blocks, size_X, size_Y))));
 
                 // virtical wall Eliminating ================================================================================================
                 
@@ -293,7 +517,7 @@ namespace try2
                     {
                         if (Random.value <= downWallEilminationRate / Mathf.Clamp(familyList.Count, 1, 8))
                         {
-                            Debug.Log("randomModified");
+                            //Debug.Log("randomModified");
                             isModified = true;
 
                             //처음부터 같은 가족값을 같도록 생성
@@ -305,16 +529,16 @@ namespace try2
                     if (!isModified)
                     {
                         //neccessary modified 
-                        Debug.Log("nec-Modified{}");
+                        //Debug.Log("nec-Modified{}");
                         int randomFam = familyList[Random.Range(0, familyList.Count - 1)];
-                        Debug.Log("nec-Modified{coord(familyList[randomFam])}");
+                        //Debug.Log("nec-Modified{coord(familyList[randomFam])}");
                         blocks[coord(randomFam, column + 1)] = new blockBase(eachFamily, top: false, side: true);
                     }
 
 
                 }
 
-                Debug.Log(debuggingDoubleWallDataMaze(typecast_Blocklization(mazeTypecast(blocks, size_X, size_Y))));
+                //Debug.Log(debuggingDoubleWallDataMaze(typecast_Blocklization(mazeTypecast(blocks, size_X, size_Y))));
 
                 #region old
                 /*
@@ -398,6 +622,19 @@ namespace try2
             {
                 blocks[coord(i + 1, size_Y - 1)].mWallData.sideWall = false;
             }
+
+            // 가생이 손질
+            for (int i = 0; i < size_X; i++)
+            {
+                blocks[coord(i, 0)].mWallData.topWall = false;
+            }
+
+            for (int i = 0; i < size_Y; i++)
+            {
+                blocks[coord(0, i)].mWallData.sideWall = false;
+            }
+
+
 
             // type Casting
             // 출력부
