@@ -335,7 +335,6 @@
 -r:"Library/Bee/artifacts/1900b0aE.dag/Unity.VisualScripting.State.Editor.ref.dll"
 -r:"Library/Bee/artifacts/1900b0aE.dag/Unity.VisualScripting.State.ref.dll"
 -r:"Library/Bee/artifacts/1900b0aE.dag/Unity.VisualStudio.Editor.ref.dll"
--r:"Library/Bee/artifacts/1900b0aE.dag/Unity.VSCode.Editor.ref.dll"
 -r:"Library/Bee/artifacts/1900b0aE.dag/UnityEditor.UI.ref.dll"
 -r:"Library/Bee/artifacts/1900b0aE.dag/UnityEngine.UI.ref.dll"
 "Assets/externalAsset/TextMesh Pro/Examples & Extras/Scripts/Benchmark01.cs"
@@ -377,12 +376,10 @@
 "Assets/script/fieldSizeSetter.cs"
 "Assets/script/LevelSetter.cs"
 "Assets/script/Loading.cs"
-"Assets/script/MapGenerater.cs"
+"Assets/script/MapGenerator.cs"
 "Assets/script/panelManagement.cs"
 "Assets/script/panelManagementToList.cs"
 "Assets/script/runAwayUI.cs"
-"Assets/script/_old/MapGenerater.cs"
-"Assets/script/_old/MapGenerater_1.cs"
 -langversion:9.0
 
 /deterministic
