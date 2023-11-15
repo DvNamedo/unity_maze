@@ -5,16 +5,16 @@ m_ProjectFiles:
     m_ContentTrackingEnabled: 1
     m_ModificationDate:
       serializedVersion: 2
-      ticks: 638352896586359082
-    m_Hash: 2019880409
+      ticks: 638356191576606910
+    m_Hash: 3799258354
   m_LockFileStatus:
     m_FilePath: D:/github/unity_maze/Mazes/Packages/packages-lock.json
     m_PathExists: 1
     m_ContentTrackingEnabled: 1
     m_ModificationDate:
       serializedVersion: 2
-      ticks: 638352896586408947
-    m_Hash: 166159297
+      ticks: 638356191576606910
+    m_Hash: 481653988
 m_EmbeddedPackageManifests:
   m_ManifestsStatus: {}
 m_LocalPackages:
