@@ -118,6 +118,7 @@ namespace try2
 
         private void Start()
         {
+            Debug.Log("=============================================================================================================================================================");
 
             //싱글톤에서 미로 크기 값을 받아오는 부분, 현재는 사실상 안쓰임
             int Xsize = Centers.instance.difficulty == Centers.Difficulty.Custom ? (int)Centers.instance.mazeSizeX : (int)Centers.instance.mazeSize;//(int)Centers.instance.mazeSizeX;
@@ -160,13 +161,11 @@ namespace try2
 
 
 
-            /*
             Debug.Log(debuggingDoubleWallDataMaze( typecast_Blocklization(mapSchematicArray)));
             wallPrefabGenerate(mapSchematicArray);
-            */
 
 
-            Debug.Log(debuggingDoubleWallDataMaze(typecast_Blocklization(formalizatedMaze_Inside_WallSchematic(3, 100))));
+            //Debug.Log(debuggingDoubleWallDataMaze(typecast_Blocklization(formalizatedMaze_Inside_WallSchematic(3, 100))));
 
             //Debug.Log(debuggingDoubleWallDataMaze(typecast_Blocklization(mazeTypecast(blocks, size_X, size_Y))); the source to use debuging map 
 
