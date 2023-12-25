@@ -806,6 +806,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1e9a6c40115359b4a9d7da234883eb0f, type: 3}
+--- !u!1 &1550225706 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7019458766737829886, guid: 1e9a6c40115359b4a9d7da234883eb0f, type: 3}
+  m_PrefabInstance: {fileID: 1550225705}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1609505711
 GameObject:
   m_ObjectHideFlags: 0
@@ -1092,9 +1097,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   stateMassage: {fileID: 0}
   prograssBar: {fileID: 0}
-  wallPrefab: {fileID: 7019458766737829886, guid: 1e9a6c40115359b4a9d7da234883eb0f, type: 3}
+  wallPrefab:
+  - {fileID: 1550225706}
   wallParent: {fileID: 1151798952}
-  horizontalSideWallEilminationRate: 0.75
-  horizontalDownWallEilminationRate: 0.25
-  verticalSideWallEilminationRate: 0.05
-  verticalDownWallEilminationRate: 0.01
+  columnMazeSideWallEilminationRate: 0.75
+  columnMazeTopWallEilminationRate: 0.25
+  rowMazeSideWallEilminationRate: 0.3
+  rowMazeTopWallEilminationRate: 0.1

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public static class EnumerableExtensions
+public static class Extensions
 {
     public static T[,] ToTwoDimensionalArray<T>(this IEnumerable<IEnumerable<T>> source)
     {
@@ -28,6 +28,8 @@ public static class EnumerableExtensions
 
         return array2D;
     }
+
+
 } // feat. Chat GPT
 
 public struct Matrix
