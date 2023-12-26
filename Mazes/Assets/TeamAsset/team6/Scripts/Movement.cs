@@ -7,11 +7,10 @@ public class Movement : MonoBehaviour
     public float speed;
     float hAxis;
     float vAxis;
-    bool wDown;
-    bool jDown;
-    bool isJump;
+    bool spaceDown;
+    bool isJumping;
 
-    Vector3 moveVec;
+    [HideInInspector] public Vector3 moveVec;
     Rigidbody rigid;
 
     void Awake() 
@@ -46,39 +45,49 @@ public class Movement : MonoBehaviour
     {
         hAxis = Input.GetAxisRaw("Horizontal");
         vAxis = Input.GetAxisRaw("Vertical");
-        wDown = Input.GetButton("Walk"); 
-        jDown = Input.GetButtonDown("Jump");
+        spaceDown = Input.GetButtonDown("Jump");
+        moveVec = new Vector3(hAxis, 0, vAxis).normalized;
     }
+
     void Move()
     {
-        moveVec = new Vector3(hAxis, 0, vAxis).normalized;
         Vector3 movement = moveVec * speed * Time.deltaTime;
-
-        if (wDown)
-            movement *= 0.3f;
-
         rigid.MovePosition(transform.position + movement);
     }
 
     void Turn()
     {
-
-        transform.LookAt(transform.position + moveVec);
+        if (moveVec != Vector3.zero)
+        {
+            Quaternion newRotation = Quaternion.LookRotation(moveVec);
+            rigid.MoveRotation(newRotation);
+        }
     }
+
     void Jump()
     {
-        if (jDown && !isJump){
+        if (spaceDown && !isJumping)
+        {
             rigid.AddForce(Vector3.up * 15, ForceMode.Impulse);
-            isJump = true;
+            isJumping = true;
         }
     }
 
-    void OnCollisionEnter(Collision collision) {
-            if(collision.gameObject.tag == "kill") {
-                Debug.Log("Collide Detect");
-    
-            }
+    void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("kill"))
+        {
+            Debug.Log("Collision Detected");
         }
+    }
+
+    void OnCollisionStay(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Floor"))
+        {
+            isJumping = false;
+        }
+    }
 }
         
     

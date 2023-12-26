@@ -677,7 +677,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 110289732}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.5999999, y: -0.29999995, z: 56.700005}
+  m_LocalPosition: {x: 0.5999999, y: -0.29999995, z: 58.8}
   m_LocalScale: {x: 40, y: 15, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -717,7 +717,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: d8ae75ee54d3aa34da6ecd8525b20b45, type: 2}
+  - {fileID: 2100000, guid: 0db015e6cf48c704cbdc0928b36be86a, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2087,7 +2087,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 705507993}
   m_LocalRotation: {x: 0.40821788, y: -0.23456968, z: 0.10938163, w: 0.8754261}
-  m_LocalPosition: {x: 33.22, y: 32.52, z: 57.25}
+  m_LocalPosition: {x: 17.51, y: 32.5, z: 20.14}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3394,10 +3394,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   personView: 0
+  difficulty: 0
   challanges: 00000000
   trapFrequecy: 0
   distanceForEnd: 0
   bonusFrequency: 0
+  topWalls: []
+  leftWalls: []
+  centers: []
+  bonusPoints: []
+  spikePoints: []
+  startPoint: {x: 0, y: 0, z: 0}
+  endPoint: {x: 1, y: 1, z: 1}
+  score: 0
+  maxHP: 100
+  currentHP: 1
+  mapGen: 0
+  isGameEnd: 0
+  isDead: 0
 --- !u!1 &1753103037
 GameObject:
   m_ObjectHideFlags: 0

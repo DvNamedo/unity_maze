@@ -947,6 +947,8 @@ namespace try2
             Centers.instance.startPoint = shuffleData(Centers.instance.centers)[0];
             Centers.instance.endPoint = getRandomDataCircle(Centers.instance.centers, 9 * Mathf.Sqrt(Xsize * Ysize) * Centers.instance.distanceForEnd, Centers.instance.startPoint); // 저기 9는 볼륨임
             Centers.instance.bonusPoints = getRandomData(Centers.instance.centers, Centers.instance.bonusFrequency);
+            Centers.instance.spikePoints = getRandomData(Centers.instance.centers, Centers.instance.trapFrequecy);
+
             //foreach (Vector3 vc in Centers.instance.centers)
             //{
             //    Instantiate(wallPrefab[1], vc, wallPrefab[1].transform.rotation, wallParent);

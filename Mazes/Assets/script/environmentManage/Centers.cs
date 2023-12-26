@@ -416,13 +416,21 @@ public class Centers : MonoBehaviour
     public List<GameObject> leftWalls = new();
     public List<Vector3> centers = new();
     public List<Vector3> bonusPoints = new();
+    public List<Vector3> spikePoints = new();
 
     public Vector3 startPoint = new(0,0,0);
     public Vector3 endPoint = new(1, 1, 1);
 
     public int score = 0;
 
+    public int maxHP = 100; // 최대 HP
+    public int currentHP = 1;   // 라이브 HP
+
     public bool mapGen = false;
+
+    public bool isGameEnd = false;
+
+    public bool isDead = false;
 
     //필요
     public enum PV

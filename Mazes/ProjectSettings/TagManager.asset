@@ -8,6 +8,7 @@ TagManager:
   - Floor
   - kill
   - bonus
+  - spike
   layers:
   - Default
   - TransparentFX
