@@ -168,12 +168,12 @@ namespace try2
                             blocks[myFamily].family = blocks[coord(i, Y)].family;
                         }
 
-                        Debug.Log($"Removed between {(i - 1, Y)} and {(i, Y)} , so {blocks[coord(i, Y)].mWallData.sideWall} to {false}");
+                        //Debug.Log($"Removed between {(i - 1, Y)} and {(i, Y)} , so {blocks[coord(i, Y)].mWallData.sideWall} to {false}");
 
                         // 왼쪽 벽 없앰을 표기하는 코드
                         blocks[coord(i, Y)].mWallData.sideWall = false;
 
-                        Debug.Log($"+ Removed between {(i - 1, Y)} and {(i, Y)} , modified to {blocks[coord(i, Y)].mWallData.sideWall}");
+                        //Debug.Log($"+ Removed between {(i - 1, Y)} and {(i, Y)} , modified to {blocks[coord(i, Y)].mWallData.sideWall}");
                     }
                 }
 
@@ -219,7 +219,7 @@ namespace try2
 
                         if (Mathf.Clamp(familyList.Count, 1, 8) * Random.Range(0, int.MaxValue) % 10000 < _topEilminationRate * 10000)
                         {
-                            Debug.Log($"randomModified: {(fam,Y)}");
+                            //Debug.Log($"randomModified: {(fam,Y)}");
                             isModified = true;
 
                             //처음부터 같은 가족값을 같도록 생성
@@ -234,7 +234,7 @@ namespace try2
                         
                         int randomFam = familyList[Random.Range(0, int.MaxValue) % familyList.Count];
                         //Debug.Log("nec-Modified{coord(familyList[randomFam])}");
-                        Debug.Log($"nec-Modified{(randomFam, Y)}");
+                        //Debug.Log($"nec-Modified{(randomFam, Y)}");
                         blocks[coord(randomFam, Y + 1)] = new T().Init<T>(eachFamily, top: false, side: true);
                     }
 
@@ -855,6 +855,7 @@ namespace try2
         private bool[,,] mapSchematicArray;
         public static float progress;
         public static State loadState = State.none;
+        public readonly Vector3 inf = Vector3.positiveInfinity;
 
 
         //formalizatedMaze_Inside_WallSchematic(int,int) 에서 미로를 생성하기 위해 미로 구역을 벽에 따라 나눈 블록의 실체를 저장하는 리스트
@@ -862,9 +863,12 @@ namespace try2
 
         private void Start()
         {
-            Debug.Log("=============================================================================================================================================================");
+            //Debug.Log("=============================================================================================================================================================");
 
             StartCoroutine(MapGenerate());
+
+
+
 
             //getSchementics(ref mapSchematicArray, Xsize, Ysize);
 
@@ -912,17 +916,43 @@ namespace try2
 
         }
 
+        private void Update()
+        {
+            //foreach(GameObject go in Centers.instance.topWalls)
+            //{
+            //    if (go != null)
+            //        go.transform.rotation *= Quaternion.Euler(new Vector3(0, 90 * Time.deltaTime, 0));
+            //}
+
+            //foreach (GameObject go in Centers.instance.leftWalls)
+            //{
+            //    if (go != null)
+            //        go.transform.rotation *= Quaternion.Euler(new Vector3(0, 90 * Time.deltaTime, 0));
+            //}
+
+
+        }
+
         IEnumerator MapGenerate()
         {
             //싱글톤에서 미로 크기 값을 받아오는 부분, 현재는 사실상 안쓰임
             int Xsize = Centers.instance.difficulty == Centers.Difficulty.Custom ? (int)Centers.instance.mazeSizeX : (int)Centers.instance.mazeSize;//(int)Centers.instance.mazeSizeX;
             int Ysize = Centers.instance.difficulty == Centers.Difficulty.Custom ? (int)Centers.instance.mazeSizeY : (int)Centers.instance.mazeSize;//(int)Centers.instance.mazeSizeY;
-            Maze<NormalBlock> mapSchematic = new Maze<NormalBlock>(Xsize, Ysize, "column", isVoid: false);
+            Maze<NormalBlock> mapSchematic = new Maze<NormalBlock>(Xsize, Ysize, "row", isVoid: false);
 
             //mapSchematic = getSchementics<NormalBlock>(Xsize,Ysize);
 
-            blockGenerate<NormalBlock>(mapSchematic); 
+            blockGenerate<NormalBlock>(mapSchematic);
 
+            Centers.instance.startPoint = shuffleData(Centers.instance.centers)[0];
+            Centers.instance.endPoint = getRandomDataCircle(Centers.instance.centers, 9 * Mathf.Sqrt(Xsize * Ysize) * Centers.instance.distanceForEnd, Centers.instance.startPoint); // 저기 9는 볼륨임
+            Centers.instance.bonusPoints = getRandomData(Centers.instance.centers, Centers.instance.bonusFrequency);
+            //foreach (Vector3 vc in Centers.instance.centers)
+            //{
+            //    Instantiate(wallPrefab[1], vc, wallPrefab[1].transform.rotation, wallParent);
+            //}
+
+            Centers.instance.mapGen = true;
             yield return null;
         }
 
@@ -944,6 +974,9 @@ namespace try2
                 prefabNumber = 0;
             }
 
+
+
+
             var sizeX = map.getSize().Item1;
             var sizeY = map.getSize().Item2;
 
@@ -953,23 +986,29 @@ namespace try2
             var offsetX = new Vector3(Volumn / 2, 0, 0);
             var offsetZ = new Vector3(0, 0, Volumn / 2);
 
+            Centers.instance.topWalls.AddMultiple(null, sizeX * sizeY);
+            Centers.instance.leftWalls.AddMultiple(null, sizeX * sizeY);
+            Centers.instance.centers.AddMultiple(inf, sizeX * sizeY);
+
             Coordinate crd = new(map.getSize().Item1);
 
             for (int x = 0; x < sizeX; x++)
             {
                 for (int y = 0; y < sizeY; y++)
                 {
-                    Debug.Log($"{(x, y)} | {map.blocks[crd.coord(x,y)].family}");
+                    //Debug.Log($"{(x, y)} | {map.blocks[crd.coord(x,y)].family}");
                     
                     if (map.blocks[crd.coord(x, y)].mWallData.topWall || y==0)
                     {
-                        Instantiate(wallPrefab[prefabNumber], offsetX + wallPrefab[prefabNumber].transform.position + new Vector3( Volumn * (sizeX - x),0,Volumn * y), wallPrefab[prefabNumber].transform.rotation, wallParent);
+                        Centers.instance.topWalls[crd.coord(x,y)] = Instantiate(wallPrefab[prefabNumber], offsetX + wallPrefab[prefabNumber].transform.position + new Vector3( Volumn * (sizeX - x),0,Volumn * y), wallPrefab[prefabNumber].transform.rotation, wallParent);
                     }
 
-                    if (map.blocks[crd.coord(x, y)].mWallData.sideWall) // 오른쪽 끝 경계 검토 필요
+                    if (map.blocks[crd.coord(x, y)].mWallData.sideWall || x==0) // 오른쪽 끝 경계 검토 필요
                     {
-                        Instantiate(wallPrefab[prefabNumber], offsetZ + wallPrefab[prefabNumber].transform.position + new Vector3( Volumn * (sizeX - x + 1), 0, Volumn * y), wallPrefab[prefabNumber].transform.rotation * Quaternion.Euler(new Vector3(0, 90, 0)), wallParent);
+                        Centers.instance.leftWalls[crd.coord(x, y)] = Instantiate(wallPrefab[prefabNumber], offsetZ + wallPrefab[prefabNumber].transform.position + new Vector3( Volumn * (sizeX - x + 1), 0, Volumn * y), wallPrefab[prefabNumber].transform.rotation * Quaternion.Euler(new Vector3(0, 90, 0)), wallParent);
                     }
+
+                    Centers.instance.centers[crd.coord(x, y)] = offsetX + offsetZ + wallPrefab[prefabNumber].transform.position + new Vector3(Volumn * (sizeX - x), 0, Volumn * y);
 
                 }
             }
@@ -979,19 +1018,119 @@ namespace try2
                 Instantiate(wallPrefab[prefabNumber], offsetX + wallPrefab[prefabNumber].transform.position + new Vector3(Volumn * (sizeX - x), 0, Volumn * sizeY), wallPrefab[prefabNumber].transform.rotation, wallParent);
             }
 
-            for(int y = 0; y < sizeY; y++)
+            for (int y = 0; y < sizeY; y++)
             {
                 Instantiate(wallPrefab[prefabNumber], offsetZ + wallPrefab[prefabNumber].transform.position + new Vector3(Volumn, 0, Volumn * y), wallPrefab[prefabNumber].transform.rotation * Quaternion.Euler(new Vector3(0, 90, 0)), wallParent);
             }
 
-            for (int y = 0; y < sizeY; y++)
-            {
-                Instantiate(wallPrefab[prefabNumber], offsetZ + wallPrefab[prefabNumber].transform.position + new Vector3(Volumn * (sizeX + 1), 0, Volumn * y), wallPrefab[prefabNumber].transform.rotation * Quaternion.Euler(new Vector3(0, 90, 0)), wallParent);
-            }
+            //for (int y = 0; y < sizeY; y++)
+            //{
+            //    Instantiate(wallPrefab[prefabNumber], offsetZ + wallPrefab[prefabNumber].transform.position + new Vector3(Volumn * (sizeX + 1), 0, Volumn * y), wallPrefab[prefabNumber].transform.rotation * Quaternion.Euler(new Vector3(0, 90, 0)), wallParent);
+            //}
 
 
 
         }
+
+
+        Maze<T> getSchementics<T>(int sizeX, int sizeY) where T : blockBase, new()
+        {
+            int UX = Random.Range(3, 6);
+            int DX = UX;
+            int LX = Random.Range(5, sizeX - UX - 5);
+            int RX = sizeX - (UX + LX);
+
+            int UY = Random.Range(7, sizeY - 7);
+            int DY = sizeY - UY;
+            int LY = sizeY;
+            int RY = sizeY;
+
+            Maze<T> leftMaze = new Maze<T>(LX, LY, "column", isVoid: false, columnMazeTopWallEilminationRate, columnMazeSideWallEilminationRate);
+            Maze<T> rightMaze = new Maze<T>(RX, RY, "column", isVoid: false, columnMazeTopWallEilminationRate, columnMazeSideWallEilminationRate);
+            Maze<T> upMaze = new Maze<T>(UX, UY, "row", isVoid: false, rowMazeTopWallEilminationRate, rowMazeSideWallEilminationRate);
+            Maze<T> downMaze = new Maze<T>(DX, DY, "row", isVoid: false, rowMazeTopWallEilminationRate, rowMazeSideWallEilminationRate);
+
+            Maze<T> middleMaze = new Maze<T>(UX, sizeY, "row", isVoid: true);
+
+            //leftMaze.removeBoundary();
+            //rightMaze.removeBoundary();
+            //upMaze.removeBoundary();
+            //downMaze.removeBoundary();
+
+            rightMaze.rotate().rotate();
+            downMaze.rotate().rotate();
+
+            middleMaze = upMaze + downMaze;
+            middleMaze.ForceSetColumn();
+
+            return ((leftMaze + middleMaze) + rightMaze);
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="radius">this radius follow the unity's coordinate, not the custom coordinate or etc... </param>
+        /// <param name="_center"> if you want to using random center system, you should set _center to inf that Vector3.positiveInfinity equals</param>
+        /// <returns></returns>
+        Vector3 getRandomDataCircle(List<Vector3> data, float radius, Vector3 _center)
+        {
+            Vector3 center = new Vector3();
+
+            if (center == inf)
+                center = shuffleData(data)[0];
+            else
+                center = _center;
+
+            List<Vector3> aroundData = new List<Vector3>();
+
+            foreach (Vector3 point in data)
+            {
+                if (Vector3.Distance(point, center) <= radius)
+                {
+                    aroundData.Add(point);
+                }
+            }
+
+            return shuffleData<Vector3>(aroundData)[0];
+
+
+        }
+
+        //================= 
+
+        // 입력받은 임의의 칸(좌표)들 중에서 임의의 점을 전체 중 
+        //입력받은 임의의 rate 만큼 뽑아서 리스트 형태로 
+        //출력하는 함수 
+        List<T> getRandomData<T>(List<T> data, float rate = 1.0f)
+        {
+            List<T> result = new List<T>(data); // 입력 데이터를 변경하지 않고 복사본을 생성
+
+            result = shuffleData(result); // 데이터를 섞음
+
+            int elementsToKeep = (int)(result.Count * rate);
+
+            // 삭제하는 대신 유지할 요소만 선택하여 반환
+            return result.GetRange(0, elementsToKeep);
+
+
+        }
+
+        //================= 
+        List<T> shuffleData<T>(List<T> data)
+        {
+            return data.OrderBy(x => Random.Range(0, int.MaxValue) % (10000 + data.Count)).ToList();
+        }
+
+        //=================
+
+        //=================
+
+        //================= 
+
+        // 벽 생성하면서 MapGenerator 전역변수로 좌표들 수집 한 
+        //다음에 위의 함수들을 이용하여 "미로 요소" 생성 변수 실행
 
 
         //void wallPrefabGenerate(bool[,,] maze)
@@ -1032,46 +1171,12 @@ namespace try2
         //        }
         //    }
 
-            // 좌표 , 각도
-            // 각도             시작                             직렬방향                                           병렬방향
-            // 0a -> ((size.X - size.Z)/2, 0, 0)   ( original + (size.X - size.Z), 0 , 0)          (0, 0, original + (size.X - size.Z))
-            // 90a -> (0,0,size.X/2 - size.Z/2)    (0, 0, original + (size.X - size.Z))            ( original + (size.X - size.Z), 0 , 0)
+        // 좌표 , 각도
+        // 각도             시작                             직렬방향                                           병렬방향
+        // 0a -> ((size.X - size.Z)/2, 0, 0)   ( original + (size.X - size.Z), 0 , 0)          (0, 0, original + (size.X - size.Z))
+        // 90a -> (0,0,size.X/2 - size.Z/2)    (0, 0, original + (size.X - size.Z))            ( original + (size.X - size.Z), 0 , 0)
 
         //}
-
-        Maze<T> getSchementics<T>(int sizeX, int sizeY) where T : blockBase, new()
-        {
-            int UX = Random.Range(3, 6);
-            int DX = UX;
-            int LX = Random.Range(5, sizeX - UX - 5);
-            int RX = sizeX - (UX + LX);
-
-            int UY = Random.Range(7, sizeY - 7);
-            int DY = sizeY - UY;
-            int LY = sizeY;
-            int RY = sizeY;
-
-            Maze<T> leftMaze = new Maze<T>(LX, LY, "column", isVoid: false, columnMazeTopWallEilminationRate, columnMazeSideWallEilminationRate);
-            Maze<T> rightMaze = new Maze<T>(RX, RY, "column", isVoid: false, columnMazeTopWallEilminationRate, columnMazeSideWallEilminationRate);
-            Maze<T> upMaze = new Maze<T>(UX, UY, "row", isVoid: false, rowMazeTopWallEilminationRate, rowMazeSideWallEilminationRate);
-            Maze<T> downMaze = new Maze<T>(DX, DY, "row", isVoid: false, rowMazeTopWallEilminationRate, rowMazeSideWallEilminationRate);
-
-            Maze<T> middleMaze = new Maze<T>(UX, sizeY, "row", isVoid: true);
-
-            //leftMaze.removeBoundary();
-            //rightMaze.removeBoundary();
-            //upMaze.removeBoundary();
-            //downMaze.removeBoundary();
-
-            rightMaze.rotate().rotate();
-            downMaze.rotate().rotate();
-
-            middleMaze = upMaze + downMaze;
-            middleMaze.ForceSetColumn();
-
-            return ((leftMaze + middleMaze) + rightMaze);
-
-        }
 
         // 한방향으로만 주로 길쭉한게 아니꼬와서 미로 여러개 이어붙힘
         //void getSchementics(ref bool[,,] maze, int X_length, int Y_length)
@@ -1497,5 +1602,5 @@ namespace try2
 
 
     }
-    
+
 }

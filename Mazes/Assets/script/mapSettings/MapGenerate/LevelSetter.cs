@@ -35,11 +35,11 @@ public class LevelSetter : MonoBehaviour
         switch (difficulty)
         {
             case Centers.Difficulty.Easy :
-                ins.mazeSize = 60;
-                ins.personView = Centers.PV.TPV;
-                ins.trapFrequecy = 0.005f;
-                ins.distanceForEnd = 0.5f;
-                ins.bonusFrequency = 0f;
+                ins.mazeSize = 40;                // CLEAR
+                ins.personView = Centers.PV.TPV;  // CLEAR?
+                ins.trapFrequecy = 0.005f;        // X
+                ins.distanceForEnd = 0.5f;        // CLEAR
+                ins.bonusFrequency = 0.01f;          // X
                 break;
 
             case Centers.Difficulty.Normal :

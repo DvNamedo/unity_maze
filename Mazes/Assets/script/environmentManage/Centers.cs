@@ -409,8 +409,20 @@ public class Centers : MonoBehaviour
     
 
     public float trapFrequecy = 0.0f;
-    public float distanceForEnd = 0.0f;
+    public float distanceForEnd = 0.5f;
     public float bonusFrequency = 0.0f;
+
+    public List<GameObject> topWalls = new();
+    public List<GameObject> leftWalls = new();
+    public List<Vector3> centers = new();
+    public List<Vector3> bonusPoints = new();
+
+    public Vector3 startPoint = new(0,0,0);
+    public Vector3 endPoint = new(1, 1, 1);
+
+    public int score = 0;
+
+    public bool mapGen = false;
 
     //ÇÊ¿ä
     public enum PV

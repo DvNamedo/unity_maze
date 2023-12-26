@@ -383,6 +383,12 @@
 "Assets/script/mapSettings/MapGenerate/InteractionWithWall.cs"
 "Assets/script/mapSettings/MapGenerate/LevelSetter.cs"
 "Assets/script/mapSettings/MapGenerate/MapGenerator.cs"
+"Assets/script/play/copyBonus.cs"
+"Assets/script/play/endPointSetter.cs"
+"Assets/script/play/VerticalMove.cs"
+"Assets/TeamAsset/team6/Scripts/FollowCam.cs"
+"Assets/TeamAsset/team6/Scripts/Movement.cs"
+"Assets/TeamAsset/team6/Scripts/PlayerInteraction.cs"
 -langversion:9.0
 
 /deterministic
